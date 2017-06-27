@@ -12,25 +12,20 @@ stages:
   jobs:
   - artifact_dir: target
     build_type: maven
-    name: Package-api-gateway
+    name: Package
     script: '#!/bin/bash
 
 
       export JAVA_HOME=$JAVA8_HOME
 
       mvn -B package
-
-
-      cp ./src/main/docker/Dockerfile $ARCHIVE_DIR/
-
-      cp ./src/test/resources/sample.js $ARCHIVE_DIR/
-
+      
       '
     type: builder
   name: Build
 - inputs:
   - dir_name: null
-    job: Package-api-gateway
+    job: Package
     stage: Build
     type: job
   jobs:
@@ -57,7 +52,7 @@ stages:
 
       CLASS=org.springframework.samples.petclinic
 
-      TARGET=spring-petclinic-api-gateway-1.5.2.war
+      TARGET=spring-petclinic-1.4.2.jar
 
 
       git clone https://github.com/jgkong/findbugs_extension.git
@@ -104,18 +99,18 @@ stages:
   - type: stage
 - inputs:
   - dir_name: null
-    job: Package-api-gateway
+    job: Package
     stage: Build
     type: job
   jobs:
   - name: Deploy
     script: '#!/bin/bash
 
-      cf push "${CF_APP}" -p spring-petclinic-api-gateway-1.5.2.war
+      cf push "${CF_APP}" -p spring-petclinic-1.4.2.jar
 
       '
     target:
-      application: PoC2-api-gateway-jgkong
+      application: PoC2-spring-petclinic-jgkong
       organization: VDInfraPOC
       region_id: ibm:yp:us-south
       space: dev
@@ -153,6 +148,6 @@ stages:
     value: DEV
   - name: APP_URL
     type: text
-    value: http://api-gateway-sp.mybluemix.net/#!/welcome
+    value: http://poc2-spring-petclinic-jgkong.mybluemix.net/#!/welcome
   triggers:
   - type: stage
