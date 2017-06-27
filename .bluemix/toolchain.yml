@@ -44,7 +44,7 @@ service_pipeline_PoC2-spring-petclinic:
   parameters:
     configuration:
       content:
-        $text: pipeline_PoC2-spring-petclinic.yml
+        $text: pipeline_monolithic.yml
       env: {}
     name: PoC2-spring-petclinic
     services:
