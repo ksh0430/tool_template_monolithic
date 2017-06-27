@@ -12,7 +12,7 @@ service_apm:
 service_draservicebroker:
   parameters: {}
   service_id: draservicebroker
-service_github_spring-petclinic
+service_github_spring-petclinic:
   parameters:
     api_root_url: https://api.github.com
     enable_traceability: true
