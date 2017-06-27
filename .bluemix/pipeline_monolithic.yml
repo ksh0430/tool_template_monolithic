@@ -7,7 +7,7 @@ stages:
 - inputs:
   - branch: master
     dir_name: null
-    service: service_github_spring-petclinic-monolithic
+    service: service_github_spring-petclinic
     type: git
   jobs:
   - artifact_dir: target
@@ -27,7 +27,6 @@ stages:
 
       '
     type: builder
-    working_dir: spring-petclinic-api-gateway
   name: Build
 - inputs:
   - dir_name: null
@@ -157,55 +156,3 @@ stages:
     value: http://api-gateway-sp.mybluemix.net/#!/welcome
   triggers:
   - type: stage
-- inputs:
-  - dir_name: null
-    job: Package-api-gateway
-    stage: Build
-    type: job
-  jobs:
-  - COMMAND: "#!/bin/bash\n\n# PoC Code\n#ARTIFACT_NAME=$(ls *.jar)\nARTIFACT_NAME=$(ls\
-      \ spring-petclinic-*.war)\n\n# The following colors have been defined to help\
-      \ with presentation of logs: green, red, label_color, no_color.  \nlog_and_echo\
-      \ \"$LABEL\" \"Starting build script\"\n\n# The IBM Container BM Containers\
-      \ plug-in (cf ic), Git client (git), and IDS Inventory CLI (ids-inv) have been\
-      \ installed.\n# Based on the organization and space selected in the Job credentials\
-      \ are in place for both IBM Container Service and IBM Bluemix \n#####################\n\
-      # Run unit tests    #\n#####################\nlog_and_echo \"$LABEL\" \"No unit\
-      \ tests cases have been checked in\"\n\n######################################\n\
-      # Build Container via Dockerfile     #\n######################################\n\
-      \n# REGISTRY_URL=${CCS_REGISTRY_HOST}/${NAMESPACE}\n# FULL_REPOSITORY_NAME=${REGISTRY_URL}/${IMAGE_NAME}:${APPLICATION_VERSION}\n\
-      # If you wish to receive slack notifications, set SLACK_WEBHOOK_PATH as a property\
-      \ on the stage.\n\nif [ -f Dockerfile ]; then \n    log_and_echo \"$LABEL\"\
-      \ \"Building ${FULL_REPOSITORY_NAME}\"\n    ${EXT_DIR}/utilities/sendMessage.sh\
-      \ -l info -m \"New container build requested for ${FULL_REPOSITORY_NAME}\"\n\
-      \    # build image\n    BUILD_COMMAND=\"\"\n    if [ \"${USE_CACHED_LAYERS}\"\
-      \ == \"true\" ]; then \n        #PoC Code\n        #BUILD_COMMAND=\"build --pull\
-      \ --tag ${FULL_REPOSITORY_NAME} ${WORKSPACE}\"\n        BUILD_COMMAND=\"build\
-      \ --build-arg ARTIFACT_NAME=${ARTIFACT_NAME} --pull --tag ${FULL_REPOSITORY_NAME}\
-      \ ${WORKSPACE}\"\n        ice_retry ${BUILD_COMMAND}\n        RESULT=$?\n  \
-      \  else \n        #PoC Code\n        #BUILD_COMMAND=\"build --no-cache --tag\
-      \ ${FULL_REPOSITORY_NAME} ${WORKSPACE}\"\n        BUILD_COMMAND=\"build --build-arg\
-      \ ARTIFACT_NAME=${ARTIFACT_NAME} --no-cache --tag ${FULL_REPOSITORY_NAME} ${WORKSPACE}\"\
-      \n        ice_retry ${BUILD_COMMAND}\n        RESULT=$?\n    fi \n\n    if [\
-      \ $RESULT -ne 0 ]; then\n        log_and_echo \"$ERROR\" \"Error building image\"\
-      \n        ice_retry info \n        ice_retry images\n        ${EXT_DIR}/print_help.sh\n\
-      \        ${EXT_DIR}/utilities/sendMessage.sh -l bad -m \"Container build of\
-      \ ${FULL_REPOSITORY_NAME} failed. $(get_error_info)\"\n        exit 1\n    else\n\
-      \        log_and_echo \"$SUCCESSFUL\" \"Container build of ${FULL_REPOSITORY_NAME}\
-      \ was successful\"\n        ${EXT_DIR}/utilities/sendMessage.sh -l good -m \"\
-      Container build of ${FULL_REPOSITORY_NAME} was successful\"\n    fi  \nelse\
-      \ \n    log_and_echo \"$ERROR\" \"Dockerfile not found in project\"\n    ${EXT_DIR}/utilities/sendMessage.sh\
-      \ -l bad -m \"Failed to get Dockerfile. $(get_error_info)\"\n    exit 1\nfi\
-      \  \n\n######################################################################################\n\
-      # Copy any artifacts that will be needed for deployment and testing to $WORKSPACE\
-      \    #\n######################################################################################\n\
-      echo \"IMAGE_NAME=${FULL_REPOSITORY_NAME}\" >> $ARCHIVE_DIR/build.properties"
-    IMAGE_NAME: image-spring-petclinic-api-gateway
-    USE_CACHED_LAYERS: 'true'
-    extension_id: ibm.devops.services.pipeline.container.builder
-    name: Build
-    target:
-      organization: VDInfraPOC
-      region_id: ibm:yp:us-south
-      space: test
-    type: builder
